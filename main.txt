@@ -1,0 +1,39 @@
+---
+- name: Removing old version of JAVA from Amazon Linux
+  yum:
+    name: java-1.7.0-openjdk
+    state: absent
+
+- name: Install Java 8 using YUM.
+  yum:
+    name: "{{java.VERSION}}"
+    state: latest  
+  become: true
+
+- name: Download Jenkins repo yum URL for  
+  get_url:
+    url: "{{jenkins.repo_URL}}"
+    dest: /etc/yum.repos.d/jenkins.repo
+  become: true
+
+- name: Import GPG Key
+  rpm_key:
+    state: present
+    key: "{{jenkins.gpg_key}}"
+
+- name: Install Jenkins
+  yum:
+    name: jenkins
+    enablerepo: jenkins
+    state: present
+
+- name: Start Jenkins service and enable on boot
+  service:
+    name: jenkins
+    state: started
+    enabled: yes
+
+- name: Install git
+  yum:
+    name: git
+    state: present
